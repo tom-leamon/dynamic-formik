@@ -14,6 +14,10 @@ const Form = () => {
     questionOptions: string[];
     initialValue: string;
     validationSchema: any;
+    enabledConditions: {
+      name: string;
+      value: string;
+    }[];
   };
 
   const data: Question[] = [
@@ -24,7 +28,23 @@ const Form = () => {
       type: InputType.radio,
       questionOptions: ["Yes", "No"],
       initialValue: "",
-      validationSchema: Yup.string().required("Required")
+      validationSchema: Yup.string().required("Required"),
+      enabledConditions: []
+    },
+    {
+      uuid: "ba279a7b-2c1a-4aed-9dd4-bcbc4dffb4c8",
+      name: "isSeriesFirst",
+      question: "Is this the first event in this series?",
+      type: InputType.radio,
+      questionOptions: ["Yes", "No"],
+      initialValue: "",
+      validationSchema: Yup.string().required("Required"),
+      enabledConditions: [
+        {
+          name: "isSeries",
+          value: "Yes"
+        }
+      ]
     }
   ];
 
@@ -46,32 +66,48 @@ const Form = () => {
     }
   });
 
-  const renderInput = (name: string, question: Question) => {
+  const calculateIsEnabled = (question: Question): boolean => {
+    let isEnabled = true;
+    question.enabledConditions.forEach((question) => {
+      if (formik.values[question.name] !== question.value) {
+        isEnabled = false;
+      }
+    });
+
+    return isEnabled;
+  };
+
+  const renderInput = (question: Question) => {
     switch (question.type) {
       case "radio":
         return (
-          <>
-            <label>{name}</label>
+          <div
+            style={{
+              marginBottom: "1rem",
+              display: calculateIsEnabled(question) ? "block" : "none"
+            }}
+          >
+            <label>{question.question}</label>
             {question.questionOptions.map((questionOption) => (
               <div className="radio-item">
                 <input
                   id={questionOption}
                   value={questionOption}
                   onChange={formik.handleChange}
-                  name={name}
+                  name={question.name}
                   type="radio"
                 />
                 <label htmlFor={questionOption}>{questionOption}</label>
               </div>
             ))}
-          </>
+          </div>
         );
     }
   };
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      {data.map((question) => renderInput(question.name, question))}
+      {data.map((question) => renderInput(question))}
       <button type="submit">Submit</button>
     </form>
   );
