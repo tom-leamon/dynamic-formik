@@ -3,11 +3,12 @@ import * as Yup from "yup";
 
 const Form = () => {
   enum InputType {
-    "radio" = "radio"
+    "radio" = "radio",
+    "date" = "date",
+    "time" = "time"
   }
 
   type Question = {
-    uuid: string;
     name: string;
     question: string;
     type: InputType;
@@ -22,8 +23,7 @@ const Form = () => {
 
   const data: Question[] = [
     {
-      uuid: "f86d42bd-56ac-4f29-8b69-457e840bbe47",
-      name: "isSeries",
+      name: "IsSeries",
       question: "Is this event part of a series of events?",
       type: InputType.radio,
       questionOptions: ["Yes", "No"],
@@ -32,8 +32,7 @@ const Form = () => {
       enabledConditions: []
     },
     {
-      uuid: "ba279a7b-2c1a-4aed-9dd4-bcbc4dffb4c8",
-      name: "isSeriesFirst",
+      name: "IsSeriesFirst",
       question: "Is this the first event in this series?",
       type: InputType.radio,
       questionOptions: ["Yes", "No"],
@@ -41,8 +40,82 @@ const Form = () => {
       validationSchema: Yup.string().required("Required"),
       enabledConditions: [
         {
-          name: "isSeries",
+          name: "IsSeries",
           value: "Yes"
+        }
+      ]
+    },
+    {
+      name: "SeriesType",
+      question: "What kind of Series is this Event?",
+      type: InputType.radio,
+      questionOptions: [
+        "A weekly event",
+        "Touring performance",
+        "Run of shows",
+        "Other"
+      ],
+      initialValue: "",
+      validationSchema: Yup.string().required("Required"),
+      enabledConditions: [
+        {
+          name: "IsSeries",
+          value: "Yes"
+        },
+        {
+          name: "IsSeriesFirst",
+          value: "Yes"
+        }
+      ]
+    },
+    {
+      name: "IsMultiday",
+      question: "Is this a multi-day event?",
+      type: InputType.radio,
+      questionOptions: ["Yes", "No"],
+      initialValue: "",
+      validationSchema: Yup.string().required("Required"),
+      enabledConditions: []
+    },
+    {
+      name: "EventDate",
+      question: "When is the event?",
+      type: InputType.date,
+      questionOptions: ["Next week", "Next month"],
+      initialValue: "",
+      validationSchema: Yup.string().required("Required"),
+      enabledConditions: [
+        {
+          name: "IsMultiday",
+          value: "No"
+        }
+      ]
+    },
+    {
+      name: "EventStartTime",
+      question: "When does the event start?",
+      type: InputType.time,
+      questionOptions: ["Next week", "Next month"],
+      initialValue: "",
+      validationSchema: Yup.string().required("Required"),
+      enabledConditions: [
+        {
+          name: "IsMultiday",
+          value: "No"
+        }
+      ]
+    },
+    {
+      name: "EventStartEnd",
+      question: "When does the event end?",
+      type: InputType.time,
+      questionOptions: ["Next week", "Next month"],
+      initialValue: "",
+      validationSchema: Yup.string().required("Required"),
+      enabledConditions: [
+        {
+          name: "IsMultiday",
+          value: "No"
         }
       ]
     }
@@ -77,17 +150,11 @@ const Form = () => {
     return isEnabled;
   };
 
-  const renderInput = (question: Question) => {
+  const renderInternal = (question: Question) => {
     switch (question.type) {
       case "radio":
         return (
-          <div
-            style={{
-              marginBottom: "1rem",
-              display: calculateIsEnabled(question) ? "block" : "none"
-            }}
-          >
-            <label>{question.question}</label>
+          <>
             {question.questionOptions.map((questionOption) => (
               <div className="radio-item">
                 <input
@@ -100,10 +167,43 @@ const Form = () => {
                 <label htmlFor={questionOption}>{questionOption}</label>
               </div>
             ))}
-          </div>
+          </>
+        );
+
+      case "date":
+        return (
+          <>
+            <input
+              type="date"
+              onChange={formik.handleChange}
+              name={question.name}
+            />
+          </>
+        );
+
+      case "time":
+        return (
+          <>
+            <input
+              type="time"
+              onChange={formik.handleChange}
+              name={question.name}
+            />
+          </>
         );
     }
   };
+
+  const renderInput = (question: Question) => (
+    <div
+      className="input"
+      style={{ display: calculateIsEnabled(question) ? "block" : "none" }}
+    >
+      <label>{question.question}</label>
+      <br />
+      {renderInternal(question)}
+    </div>
+  );
 
   return (
     <form onSubmit={formik.handleSubmit}>
