@@ -15,7 +15,7 @@ function Form() {
     name: string;
     question: string;
     type: InputType;
-    questionOptions: string[];
+    questionOptions?: string[];
     initialValue: string | {};
     validationSchema: any;
     enabledConditions: {
@@ -84,7 +84,6 @@ function Form() {
       name: "EventDate",
       question: "When is the event?",
       type: InputType.date,
-      questionOptions: ["Next week", "Next month"],
       initialValue: "",
       validationSchema: Yup.string().required("Required"),
       enabledConditions: [
@@ -98,7 +97,6 @@ function Form() {
       name: "EventStartTime",
       question: "When does the event start?",
       type: InputType.time,
-      questionOptions: ["Next week", "Next month"],
       initialValue: "",
       validationSchema: Yup.string().required("Required"),
       enabledConditions: [
@@ -112,7 +110,6 @@ function Form() {
       name: "EventStartEnd",
       question: "When does the event end?",
       type: InputType.time,
-      questionOptions: ["Next week", "Next month"],
       initialValue: "",
       validationSchema: Yup.string().required("Required"),
       enabledConditions: [
@@ -126,7 +123,6 @@ function Form() {
       name: "ListOfDaysAndTimes",
       question: "What days will the event take place on?",
       type: InputType.ListOfDaysAndTimes,
-      questionOptions: ["Next week", "Next month"],
       initialValue: {},
       validationSchema: Yup.string().required("Required"),
       enabledConditions: [
@@ -172,18 +168,20 @@ function Form() {
       case "radio":
         return (
           <>
-            {question.questionOptions.map((questionOption) => (
-              <div className="radio-item">
-                <input
-                  id={questionOption}
-                  value={questionOption}
-                  onChange={formik.handleChange}
-                  name={question.name}
-                  type="radio"
-                />
-                <label htmlFor={questionOption}>{questionOption}</label>
-              </div>
-            ))}
+            {question.questionOptions
+              ? question.questionOptions.map((questionOption) => (
+                  <div className="radio-item">
+                    <input
+                      id={questionOption}
+                      value={questionOption}
+                      onChange={formik.handleChange}
+                      name={question.name}
+                      type="radio"
+                    />
+                    <label htmlFor={questionOption}>{questionOption}</label>
+                  </div>
+                ))
+              : null}
           </>
         );
 
