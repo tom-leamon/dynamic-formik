@@ -1,11 +1,14 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
-const Form = () => {
+import ListOfDaysAndTimes from "./ListOfDaysAndTimes";
+
+function Form() {
   enum InputType {
     "radio" = "radio",
     "date" = "date",
-    "time" = "time"
+    "time" = "time",
+    "ListOfDaysAndTimes" = "ListOfDaysAndTimes"
   }
 
   type Question = {
@@ -13,7 +16,7 @@ const Form = () => {
     question: string;
     type: InputType;
     questionOptions: string[];
-    initialValue: string;
+    initialValue: string | {};
     validationSchema: any;
     enabledConditions: {
       name: string;
@@ -118,6 +121,20 @@ const Form = () => {
           value: "No"
         }
       ]
+    },
+    {
+      name: "ListOfDaysAndTimes",
+      question: "What days will the event take place on?",
+      type: InputType.ListOfDaysAndTimes,
+      questionOptions: ["Next week", "Next month"],
+      initialValue: {},
+      validationSchema: Yup.string().required("Required"),
+      enabledConditions: [
+        {
+          name: "IsMultiday",
+          value: "Yes"
+        }
+      ]
     }
   ];
 
@@ -191,6 +208,14 @@ const Form = () => {
             />
           </>
         );
+      case "ListOfDaysAndTimes":
+        return (
+          <ListOfDaysAndTimes
+            onChangeFunction={(value) => {
+              formik.setFieldValue(question.name, value);
+            }}
+          />
+        );
     }
   };
 
@@ -211,6 +236,6 @@ const Form = () => {
       <button type="submit">Submit</button>
     </form>
   );
-};
+}
 
 export default Form;
